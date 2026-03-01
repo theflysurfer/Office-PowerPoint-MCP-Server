@@ -9,7 +9,7 @@ import tempfile
 import base64
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 # Windows COM automation
 import win32com.client
@@ -1138,7 +1138,18 @@ def set_table_cell(
 
 def main():
     """Run the FastMCP server."""
-    app.run(transport='stdio')
+    import argparse
+    parser = argparse.ArgumentParser(description="PowerPoint MCP Server")
+    parser.add_argument("--transport", default="stdio", choices=["stdio", "streamable-http"])
+    parser.add_argument("--port", type=int, default=8774)
+    parser.add_argument("--host", default="127.0.0.1")
+    args = parser.parse_args()
+
+    kwargs = {"transport": args.transport}
+    if args.transport != "stdio":
+        kwargs["host"] = args.host
+        kwargs["port"] = args.port
+    app.run(**kwargs)
 
 
 if __name__ == "__main__":
